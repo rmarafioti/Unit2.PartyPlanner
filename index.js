@@ -3,12 +3,28 @@ const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api${COHORT}/events
 
 const state = {
   parties: [],
+  selected: null,
 };
 
 const partyList = document.querySelector("#parties");
 
 const addPartyForm = document.querySelector("#addParty");
 addPartyForm.addEventListener("submit", addParty);
+
+//function in which selected party declares selected = party & hash = a party id
+function selected(party) {
+  state.selected = party;
+  location.hash = party.id;
+}
+//CHECK
+
+//load recipe from hash
+function loadSelectedFromHash() {
+  const id = +location.hash.slice(1);
+  state.selected = state.parties.find((party) => party.id === id);
+}
+
+//CHECK
 
 /**
  * Sync state with the API and rerender
@@ -37,7 +53,7 @@ async function getParties() {
  */
 function renderParties() {
   if (!state.parties.length) {
-    partyList.innerHTML = "<li>No Artists</li>";
+    partyList.innerHTML = "<li>No Parties RN</li>";
     return;
   }
 
@@ -48,17 +64,30 @@ function renderParties() {
         <p>${party.description}</p>
         <p>${party.date}</p>
         <p>${party.location}</p>
-        <p>${party.description}</p>
         <button>Delete</button>
       `;
     const deleteButton = $li.querySelector("button");
     deleteButton.addEventListener("click", () => {
       deleteParty(party.id);
     });
+    $li.addEventListener("click", (_event) => {
+      selected(party);
+    });
+
     return $li;
   });
-
   partyList.replaceChildren(...$parties);
+}
+
+function renderSelected() {
+  const $party = document.querySelector("#selected"); //Figure this out
+  $party.innerHTML = `
+        <h2>${state.selected.name}</h2>
+        <p>${state.selected.description}</p>
+        <p>${state.selected.date}</p>
+        <p>${state.selected.location}</p>
+        <button>Delete</button>
+      `;
 }
 
 /**
@@ -100,3 +129,15 @@ async function deleteParty(id) {
     console.error(error);
   }
 }
+
+//==========SCRIPT+++++++++++
+
+async function init() {
+  await getParties();
+  renderParties();
+
+  loadSelectedFromHash();
+  renderSelected();
+}
+
+window.addEventListener("load", init);
