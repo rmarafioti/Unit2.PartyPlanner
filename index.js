@@ -1,4 +1,4 @@
-const COHORT = "/2109-CPU-RM-WEB-PT";
+const COHORT = "/2401-FSA-ET-WEB-FT-SF";
 const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api${COHORT}/events`;
 
 const state = {
@@ -18,10 +18,9 @@ async function render() {
   renderParties();
 }
 render();
-//CHECK
 
 /**
- * Update state with artists from API
+ * Update state with parties from API
  */
 async function getParties() {
   try {
@@ -33,10 +32,8 @@ async function getParties() {
   }
 }
 
-//CHECK
-
 /**
- * Render artists from state
+ * Render parties from state
  */
 function renderParties() {
   if (!state.parties.length) {
@@ -52,38 +49,37 @@ function renderParties() {
         <p>${party.date}</p>
         <p>${party.location}</p>
         <p>${party.description}</p>
-        <button id="delete">Delete</button>
+        <button>Delete</button>
       `;
+    const deleteButton = $li.querySelector("button");
+    deleteButton.addEventListener("click", () => {
+      deleteParty(party.id);
+    });
     return $li;
   });
 
   partyList.replaceChildren(...$parties);
 }
-//CHECK
-//Must create event to click delete button and remove party listing from the window
 
 /**
- * Ask the API to create a new artist based on form data
+ * Ask the API to create a new party on form data
  * @param {Event} event
  */
 async function addParty(event) {
   event.preventDefault();
 
   try {
+    const date = new Date(addPartyForm.date.value).toISOString();
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: addPartyForm.name.value,
         description: addPartyForm.description.value,
-        date: addPartyForm.date.value,
+        date,
         location: addPartyForm.location.value,
       }),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to create Party");
-    }
 
     render();
   } catch (error) {
@@ -91,4 +87,16 @@ async function addParty(event) {
   }
 }
 
-//NOT WORKING
+//create event to click delete button and remove party listing from the window
+
+async function deleteParty(id) {
+  try {
+    const response = await fetch(API_URL + `/${id}`, {
+      method: "DELETE",
+    });
+
+    render();
+  } catch (error) {
+    console.error(error);
+  }
+}
