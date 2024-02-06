@@ -16,15 +16,12 @@ function selected(party) {
   state.selected = party;
   location.hash = party.id;
 }
-//CHECK
 
 //load recipe from hash
 function loadSelectedFromHash() {
   const id = +location.hash.slice(1);
   state.selected = state.parties.find((party) => party.id === id);
 }
-
-//CHECK
 
 /**
  * Sync state with the API and rerender
